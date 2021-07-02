@@ -1,5 +1,7 @@
 import express, { Application } from 'express';
+import cors  from 'cors';
 import userRoutes from '../routes/user.route';
+import db from '../db/connection';
 
 export default class Server {
 
@@ -12,7 +14,24 @@ export default class Server {
     constructor() {
         this.app = express();
         this.port = process.env.PORT || '3000';
+        this.dbConnection();
+        this.middlewares();
         this.routes();
+    }
+
+    public async dbConnection() {
+        try {
+            await db.authenticate();
+            console.log('Database is connected');
+        } catch (error) {
+            throw new Error(error);
+        }
+    }
+
+    public middlewares() {
+        this.app.use(cors());
+        this.app.use(express.json());
+        this.app.use(express.static('public'));
     }
 
     public routes() {
